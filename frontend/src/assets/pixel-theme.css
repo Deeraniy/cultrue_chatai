@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+body {
+  font-family: 'WeiWeiPixel', 'Press Start 2P', 'Pixel', monospace;
+  background: linear-gradient(180deg, #fffbe6 0%, #e6cfa7 100%);
+  min-height: 100vh;
+  background-attachment: fixed;
+}
+
+.pixel-card, .pixel-panel {
+  background: #fffbe6;
+  border: 2px solid #b48a78;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(180,138,120,0.13), 0 1.5px 0 #e6cfa7 inset;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.pixel-btn, button {
+  font-family: inherit;
+  background: linear-gradient(180deg, #e6cfa7 0%, #a7d3a6 100%);
+  color: #6b4f3b;
+  border: 2px solid #b48a78;
+  border-radius: 8px;
+  box-shadow: 0 2px 0 #d9bfa3;
+  padding: 12px 28px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: box-shadow 0.1s, background 0.2s;
+  outline: none;
+}
+.pixel-btn:active, button:active {
+  box-shadow: none;
+  background: #a7d3a6;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  border: 2px solid #b48a78;
+  border-radius: 6px;
+  background: #fff;
+  color: #6b4f3b;
+  padding: 10px;
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 8px;
+}
+
+.pixel-title, h1, h2, h3, h4 {
+  font-family: 'VT323', monospace, sans-serif;
+  color: #6b4f3b;
+  text-shadow: 1px 1px 0 #fff, 2px 2px 0 #d9bfa3;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  background: #e6cfa7;
+}
+::-webkit-scrollbar-thumb {
+  background: #b48a78;
+  border: 2px solid #fffbe6;
+  border-radius: 8px;
+} 

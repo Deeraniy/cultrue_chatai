@@ -1,0 +1,124 @@
+你的需求总结如下：
+
+- **用户同意调整计划时**，AI助手不应该直接把整个JSON对象输出到对话区（太丑了），而是应该直接弹窗让用户确认，**只有用户最终确认后，助手再输出一句简短的确认语**。
+- **如果用户一开始就不同意**，助手可以继续正常对话，不输出JSON。
+
+---
+
+## 你的现状
+
+- 现在助手会把整个新计划的JSON内容直接输出到对话区，体验很差。
+- 你希望：  
+  1. **AI只输出“建议调整计划，是否同意？”等引导语**，不输出JSON。  
+  2. **用户同意后，前端弹窗展示新计划，用户点击“同意”后，前端直接更新计划并刷新，不让AI再输出JSON**。  
+  3. **最终助手只输出一句“已为你更新新计划！”等简短确认语**。
+
+---
+
+## 解决方案
+
+### 1. **后端 prompt 设计建议**
+
+- 让AI**不要直接输出JSON**，而是输出“建议调整计划，是否同意？”等引导语。
+- 只有在用户明确回复“同意”后，AI才输出标准JSON（但这部分可以前端拦截，不显示）。
+
+### 2. **前端处理建议**
+
+- **拦截AI回复**：如果AI回复内容里有JSON（如`{`、`}`、`\"book\"`等），**不要直接显示在对话区**，而是只弹窗展示新计划。
+- **用户点击“同意”后**，前端直接调用 `/api/chatbot/update_plan/`，**然后在对话区插入一句“已为你更新新计划！”**。
+- **用户点击“不同意”**，助手继续正常对话。
+
+---
+
+## 具体前端实现方案
+
+### 1. **拦截AI回复中的JSON，不显示在对话区**
+
+在 `sendChat` 方法的 then 回调里：
+
+```js
+axios.post('/api/chatbot/direct_chat_with_diary/', { ... }).then(res => {
+  // 检查是否有 new_plan
+  if (res.data.new_plan) {
+    let planObj = null;
+    try {
+      planObj = typeof res.data.new_plan === 'string' ? JSON.parse(res.data.new_plan) : res.data.new_plan;
+    } catch (e) {}
+    if (planObj && planObj.book) {
+      // 弹窗展示新计划内容，等待用户同意
+      showPlanDialog.value = true;
+      pendingPlanObj.value = planObj;
+      // 不把 new_plan 的内容显示到 chatList
+      // return; // 直接return，阻止后续助手回复显示
+    }
+  }
+  // 只显示非JSON的助手回复
+  if (res.data.reply && !isJsonLike(res.data.reply)) {
+    chatList.value.push({ role: 'assistant', text: res.data.reply });
+  }
+  // ...其他逻辑
+});
+```
+
+**辅助函数：**
+
+```js
+function isJsonLike(str) {
+  // 简单判断是否为json
+  return str.trim().startsWith('{') || str.trim().startsWith('```json');
+}
+```
+
+### 2. **用户同意后，前端插入一句简短确认语**
+
+在 `onAcceptNewPlan` 里：
+
+```js
+async function onAcceptNewPlan() {
+  if (!pendingPlanObj.value) return;
+  await axios.post('/api/chatbot/update_plan/', {
+    user_id: userId,
+    plan_id: Number(selectedPlanObj.value.id),
+    plan_content: JSON.stringify(pendingPlanObj.value)
+  });
+  selectedPlanObj.value = pendingPlanObj.value;
+  editPlanObj.value = JSON.parse(JSON.stringify(pendingPlanObj.value));
+  showPlanDialog.value = false;
+  fetchMyPlans();
+  // 在对话区插入一句简短提示
+  chatList.value.push({ role: 'assistant', text: '已为你更新新计划！' });
+}
+```
+
+---
+
+## 这样实现后：
+
+- **AI不会再输出大段JSON到对话区**。
+- **用户同意后，助手只说“已为你更新新计划！”**。
+- **用户不同意，助手继续正常对话**。
+
+---
+
+### 需要我帮你自动修改前端代码吗？
+
+前端已为你自动完成如下优化：
+
+---
+
+### 1. **AI助手输出拦截**
+- 如果AI回复内容是JSON或new_plan（即新计划），**不会再把JSON显示到对话区**，而是只弹窗展示新计划内容。
+
+### 2. **用户同意新计划后**
+- 在对话区插入一句“已为你更新新计划！”的简短提示，体验更友好。
+
+### 3. **辅助函数**
+- 新增 `isJsonLike` 辅助函数，自动判断字符串是否为JSON，避免误显示。
+
+---
+
+**现在体验：**
+- 用户同意后只弹窗，最终对话区只出现简短确认语。
+- 用户不同意，助手继续正常对话。
+
+请刷新页面体验，如还有细节问题欢迎随时反馈！
