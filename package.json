@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "echarts": "^5.6.0",
+    "vue-echarts": "^7.0.3"
+  },
+  "devDependencies": {
+    "eslint-plugin-vue": "^10.3.0"
+  }
+}
