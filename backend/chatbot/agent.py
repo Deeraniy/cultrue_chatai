@@ -8,7 +8,7 @@ import json  # 处理JSON数据
 
 # DeepSeekChat API的基础信息（API地址和密钥）
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
-DEEPSEEK_API_KEY = "sk-a853c03e01e64799a3124528efd82441"
+DEEPSEEK_API_KEY = ""
 
 # ========== 1. 阅读计划生成工具函数 ==========
 def generate_plan_tool_func(goal: str) -> str:
